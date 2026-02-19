@@ -6,7 +6,8 @@ import {
   LayoutDashboard, BadgeDollarSign, Wallet, Store, 
   Settings, Menu, X, Search, Filter, 
   User, LogOut, Users, Plus, CheckCircle2, 
-  CreditCard, Shield, MoreHorizontal, ArrowUpRight
+  CreditCard, Shield, MoreHorizontal, ArrowUpRight,
+  Package, TrendingUp, Eye, ShoppingCart, AlertCircle
 } from "lucide-react";
 
 export default function AdminPanel() {
@@ -33,7 +34,7 @@ export default function AdminPanel() {
   return (
     <div className="min-h-screen bg-[#0D0D0D] text-white flex overflow-hidden font-sans">
       
-      {/* SIDEBAR (DESKTOP ONLY) */}
+      {/* SIDEBAR */}
       {!isMobile && (
         <motion.aside 
           initial={false}
@@ -137,7 +138,63 @@ export default function AdminPanel() {
               </motion.div>
             )}
 
-            {/* 2. PARCEIROS (CARDS NO MOBILE) */}
+            {/* 2. VENDAS - RESTAURADO E COMPLETO */}
+            {activeTab === "Vendas" && (
+              <motion.div key="vendas" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+                <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+                  <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
+                    {['Todas', 'Aprovadas', 'Pendentes', 'Canceladas'].map((f) => (
+                      <button key={f} className={`px-4 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest whitespace-nowrap ${f === 'Todas' ? 'bg-[#FF5C1A] text-black' : 'bg-white/5 text-zinc-500'}`}>
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="bg-[#141414] border border-white/5 px-4 py-2 rounded-xl flex items-center gap-3 w-full md:w-64">
+                    <Search size={14} className="text-zinc-600" />
+                    <input type="text" placeholder="ID, EMAIL OU CLIENTE..." className="bg-transparent border-none outline-none text-[9px] font-bold uppercase w-full" />
+                  </div>
+                </div>
+
+                <div className="bg-[#141414] border border-white/5 rounded-2xl overflow-hidden">
+                  <table className="w-full text-left text-[10px]">
+                    <thead className="bg-white/5 text-zinc-500 font-black uppercase">
+                      <tr>
+                        <th className="p-4">Transação</th>
+                        <th className="p-4 hidden md:table-cell">Partner</th>
+                        <th className="p-4">Valor</th>
+                        <th className="p-4">Status</th>
+                        <th className="p-4 text-right">Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.03]">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <tr key={i} className="hover:bg-white/[0.01]">
+                          <td className="p-4">
+                            <p className="font-black text-zinc-200 uppercase">#SLCT-990{i}</p>
+                            <p className="text-[8px] text-zinc-600">19/02/2026 14:20</p>
+                          </td>
+                          <td className="p-4 hidden md:table-cell">
+                            <p className="font-bold text-zinc-400 uppercase">João Silva (Partner)</p>
+                          </td>
+                          <td className="p-4">
+                            <p className="font-black text-white">R$ 297,00</p>
+                            <p className="text-[8px] text-[#FF5C1A]">Taxa: R$ 14,85</p>
+                          </td>
+                          <td className="p-4">
+                            <span className="bg-green-500/10 text-green-500 text-[7px] font-black px-2 py-0.5 rounded uppercase">Aprovada</span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <button className="p-2 hover:bg-white/5 rounded-lg text-zinc-600"><Eye size={14} /></button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            )}
+
+            {/* 3. PARCEIROS */}
             {activeTab === "Parceiros" && (
               <motion.div key="parceiros" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                 <div className="flex justify-between items-center bg-[#141414] p-3 rounded-2xl border border-white/5">
@@ -178,7 +235,62 @@ export default function AdminPanel() {
               </motion.div>
             )}
 
-            {/* 3. FINANCEIRO (APROVAÇÃO DE SAQUES) */}
+            {/* 4. MARKETPLACE - RESTAURADO E COMPLETO */}
+            {activeTab === "Marketplace" && (
+              <motion.div key="market" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-[#141414] border border-white/5 p-5 rounded-2xl">
+                    <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-2">Produtos Ativos</p>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-2xl font-black">42</h3>
+                      <Package size={20} className="text-[#FF5C1A]" />
+                    </div>
+                  </div>
+                  <div className="bg-[#141414] border border-white/5 p-5 rounded-2xl">
+                    <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-2">Novas Afiliações</p>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-2xl font-black">128</h3>
+                      <TrendingUp size={20} className="text-green-500" />
+                    </div>
+                  </div>
+                  <button className="bg-[#FF5C1A] text-black rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
+                    <Plus size={18} /> Cadastrar Produto
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="bg-[#141414] border border-white/5 p-4 rounded-2xl flex gap-4 items-center">
+                      <div className="w-16 h-16 bg-[#0D0D0D] rounded-xl flex items-center justify-center border border-white/5 shrink-0">
+                        <Store size={24} className="text-zinc-800" />
+                      </div>
+                      <div className="flex-1 overflow-hidden">
+                        <div className="flex justify-between items-start">
+                          <h4 className="text-[10px] font-black uppercase truncate">Curso High Stakes 0{i}</h4>
+                          <span className="text-[7px] bg-[#FF5C1A]/10 text-[#FF5C1A] px-2 py-0.5 rounded font-black uppercase">60% Comis.</span>
+                        </div>
+                        <div className="flex gap-4 mt-2">
+                          <div>
+                            <p className="text-[7px] text-zinc-600 uppercase font-bold">Afiliados</p>
+                            <p className="text-[10px] font-black">84</p>
+                          </div>
+                          <div>
+                            <p className="text-[7px] text-zinc-600 uppercase font-bold">Vendas Total</p>
+                            <p className="text-[10px] font-black">R$ 12.400</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                         <button className="p-2 bg-white/5 rounded-lg text-zinc-400 hover:text-white transition-colors"><Settings size={14}/></button>
+                         <button className="p-2 bg-white/5 rounded-lg text-red-500/50 hover:text-red-500 transition-colors"><X size={14}/></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* 5. FINANCEIRO */}
             {activeTab === "Financeiro" && (
               <motion.div key="fin" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                 <div className="bg-[#141414] border border-white/5 p-6 rounded-3xl">
@@ -190,14 +302,14 @@ export default function AdminPanel() {
                    {[1, 2].map(i => (
                      <div key={i} className="bg-[#141414] p-4 rounded-2xl border border-white/5">
                         <div className="flex justify-between items-start mb-4">
-                           <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-500"><CreditCard size={14}/></div>
-                              <div>
-                                 <p className="text-[10px] font-black uppercase">Solicitação #{i}842</p>
-                                 <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest font-mono">Partner 0{i} • 19/02/26</p>
-                              </div>
-                           </div>
-                           <p className="text-sm font-black text-white">R$ 1.500,00</p>
+                            <div className="flex items-center gap-3">
+                               <div className="w-8 h-8 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-500"><CreditCard size={14}/></div>
+                               <div>
+                                  <p className="text-[10px] font-black uppercase">Solicitação #{i}842</p>
+                                  <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest font-mono">Partner 0{i} • 19/02/26</p>
+                               </div>
+                            </div>
+                            <p className="text-sm font-black text-white">R$ 1.500,00</p>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                            <button className="py-2 bg-green-500 text-black text-[9px] font-black uppercase rounded-lg hover:bg-green-400 transition-all flex items-center justify-center gap-2"><CheckCircle2 size={12}/> Aprovar</button>
@@ -209,7 +321,7 @@ export default function AdminPanel() {
               </motion.div>
             )}
 
-            {/* CONFIGURAÇÕES ADM */}
+            {/* 6. CONFIGURAÇÕES ADM */}
             {activeTab === "Configurações" && (
               <motion.div key="config" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 max-w-xl">
                  <div className="bg-[#141414] border border-white/5 p-6 rounded-3xl space-y-6">
@@ -235,7 +347,7 @@ export default function AdminPanel() {
           </AnimatePresence>
         </div>
 
-        {/* BOTTOM NAV MOBILE (ADMIN STYLE) */}
+        {/* BOTTOM NAV MOBILE */}
         {isMobile && (
           <div className="fixed bottom-0 left-0 w-full bg-[#141414]/90 backdrop-blur-xl border-t border-white/5 px-2 py-4 flex justify-around items-center z-50">
             {menuItems.map((item) => (
@@ -255,7 +367,7 @@ export default function AdminPanel() {
       </main>
 
       <style jsx global>{`
-        body { background-color: #0D0D0D; }
+        body { background-color: #0D0D0D; margin: 0; padding: 0; }
         ::-webkit-scrollbar { display: none; }
         * { -webkit-tap-highlight-color: transparent; }
       `}</style>

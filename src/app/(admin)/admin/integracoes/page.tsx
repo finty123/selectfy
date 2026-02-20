@@ -2,11 +2,16 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link2, ShieldCheck, Copy, Zap, CheckCircle2 } from "lucide-react";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-// Se o erro persistir com o de cima, use este caminho exato:
-// import { createClientComponentClient } from '@supabase/auth-helpers-nextjs/dist/index';
+// Importamos o cliente padrão que é mais estável
+import { createClient } from '@supabase/supabase-js';
+
 export default function IntegrationsPage() {
-  const supabase = createClientComponentClient();
+  // Inicializamos o cliente usando as variáveis de ambiente já configuradas no seu projeto
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   const [integrations, setIntegrations] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -17,11 +22,17 @@ export default function IntegrationsPage() {
   }, []);
 
   async function fetchIntegrations() {
-    const { data } = await supabase
-      .from('integrations')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (data) setIntegrations(data);
+    try {
+      const { data, error } = await supabase
+        .from('integrations')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      if (data) setIntegrations(data);
+    } catch (error) {
+      console.error("Erro ao buscar integrações:", error);
+    }
   }
 
   // 2. Lógica para gerar e salvar no Supabase
@@ -32,12 +43,13 @@ export default function IntegrationsPage() {
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
       const finalUrl = `${baseUrl}/api/webhooks/${service.toLowerCase()}?token=${token}`;
 
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error("Não autenticado");
+      // Pegamos o usuário atual
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Usuário não autenticado. Faça login novamente.");
 
       const { error } = await supabase.from('integrations').insert([
         {
-          user_id: userData.user.id,
+          user_id: user.id,
           service_name: service,
           webhook_url: finalUrl,
           webhook_token: token,
@@ -45,9 +57,9 @@ export default function IntegrationsPage() {
       ]);
 
       if (error) throw error;
-      fetchIntegrations();
+      await fetchIntegrations(); // Atualiza a lista
     } catch (error: any) {
-      alert("Erro: " + error.message);
+      alert("Erro ao ativar integração: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -68,7 +80,6 @@ export default function IntegrationsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Opções de Gerar Novo Webhook */}
         {['Stripe', 'Kiwify', 'Kirvano'].map((service) => (
           <div key={service} className="bg-[#141414] border border-white/5 rounded-[32px] p-6 hover:border-[#FF5C1A]/20 transition-all group">
             <div className="flex justify-between items-start mb-6">
@@ -95,7 +106,7 @@ export default function IntegrationsPage() {
         ))}
       </div>
 
-      {/* Lista de Webhooks Ativos no Banco */}
+      {/* Lista de Webhooks Ativos */}
       {integrations.length > 0 && (
         <div className="mt-12 space-y-4">
           <h3 className="text-[12px] font-black uppercase text-zinc-500 tracking-[0.2em] ml-2">Webhooks Ativos</h3>
@@ -126,7 +137,7 @@ export default function IntegrationsPage() {
 
       <div className="mt-6 flex items-center gap-2 text-zinc-600 justify-center">
         <ShieldCheck size={14} />
-        <span className="text-[8px] font-bold uppercase tracking-widest">Criptografia SHA-256 e Webhook dinâmico ativos</span>
+        <span className="text-[8px] font-bold uppercase tracking-widest">Segurança Selectfy: Endpoints protegidos</span>
       </div>
     </motion.div>
   );

@@ -7,31 +7,40 @@ import {
 } from "lucide-react";
 
 export default function AdminUsers() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("ALL");
-  const [selectedUser, setSelectedUser] = useState<any>(null); // Controle do Painel Lateral
+  // CORREÇÃO AQUI: Definimos o tipo como any[] em vez de never[]
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [filter, setFilter] = useState<string>("ALL");
+  const [selectedUser, setSelectedUser] = useState<any>(null);
 
   const loadUsers = async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/admin/partners");
       const data = await res.json();
+      // Garante que estamos enviando um array para o estado
       setUsers(Array.isArray(data) ? data : []);
-    } catch (err) { console.error(err); } 
+    } catch (err) { 
+      console.error(err); 
+      setUsers([]); // Fallback para evitar erros de renderização
+    } 
     finally { setLoading(false); }
   };
 
   useEffect(() => { loadUsers(); }, []);
 
   const handleStatus = async (id: number, status: string) => {
-    await fetch(`/api/admin/partners/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    if (selectedUser?.id === id) setSelectedUser(null);
-    loadUsers();
+    try {
+      await fetch(`/api/admin/partners/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (selectedUser?.id === id) setSelectedUser(null);
+      loadUsers();
+    } catch (err) {
+      console.error("Erro ao atualizar status:", err);
+    }
   };
 
   const filteredUsers = users.filter((u: any) => 
@@ -142,7 +151,6 @@ export default function AdminUsers() {
             <p className="text-zinc-500 text-xs mb-8 flex items-center gap-2"><Mail size={12}/> {selectedUser.email}</p>
 
             <div className="space-y-6">
-              {/* CONFIGURAÇÕES DE ACESSO */}
               <div>
                 <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3">Nível de Acesso</p>
                 <div className="grid grid-cols-2 gap-2">
@@ -155,7 +163,6 @@ export default function AdminUsers() {
                 </div>
               </div>
 
-              {/* PERSONALIZAÇÃO FINANCEIRA */}
               <div>
                 <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3">Comissão Personalizada (%)</p>
                 <div className="relative">
@@ -164,13 +171,11 @@ export default function AdminUsers() {
                 </div>
               </div>
 
-              {/* INFO ADICIONAL */}
               <div className="p-4 bg-white/[0.02] rounded-2xl border border-white/5 space-y-3">
                  <div className="flex justify-between text-[10px] uppercase font-bold"><span className="text-zinc-500">Localização:</span><span className="text-zinc-300">{selectedUser.location || 'Não informado'}</span></div>
                  <div className="flex justify-between text-[10px] uppercase font-bold"><span className="text-zinc-500">Nicho:</span><span className="text-zinc-300">{selectedUser.niche?.split('|')[0] || 'Geral'}</span></div>
               </div>
 
-              {/* BOTÕES DE STATUS */}
               <div className="pt-6 space-y-3">
                 {selectedUser.status === 'PENDING' ? (
                   <>

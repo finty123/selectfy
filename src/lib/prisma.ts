@@ -10,9 +10,10 @@ declare global {
 
 const prisma = globalThis.prisma ?? prismaClientSingleton()
 
-export default prisma
-
 if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma
-// No final do arquivo src/lib/prisma.ts
-export { prisma }; // Exportação nomeada (resolve o erro das chaves)
-export default prisma; // Exportação padrão
+
+// Isso permite: import prisma from ... (sem chaves)
+export default prisma 
+
+// Isso permite: import { prisma } from ... (com chaves)
+export { prisma }

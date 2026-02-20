@@ -1,5 +1,8 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
+// Se você estiver usando o Prisma aqui dentro, adicione também:
+export const revalidate = 0;
 
 export async function GET() {
   try {

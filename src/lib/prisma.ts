@@ -6,7 +6,10 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient };
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
-    log: ["query"], // Útil para você ver no console se a comissão foi calculada certo
+    log: ["query"], // Útil para ver no console as queries executadas
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+// ADICIONE ESTA LINHA PARA CORRIGIR O ERRO NO DASHBOARD:
+export default prisma;

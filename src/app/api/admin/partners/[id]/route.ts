@@ -1,6 +1,10 @@
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma"; // Removido as chaves { }
 import { getSession } from "@/lib/auth";
 import { NextResponse } from "next/server";
+
+// ESSENCIAIS PARA O BUILD DA VERCEL PASSAR:
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // PATCH para atualizar o status do PARCEIRO (Ativo/Inativo)
 export async function PATCH(
@@ -19,7 +23,7 @@ export async function PATCH(
 
     const updatedPartner = await prisma.user.update({
       where: { id: partnerId },
-      data: { status }, // Atualiza o status do cadastro do usuário
+      data: { status },
     });
 
     return NextResponse.json(updatedPartner);
@@ -29,7 +33,7 @@ export async function PATCH(
   }
 }
 
-// GET para buscar um parceiro específico (opcional)
+// GET para buscar um parceiro específico
 export async function GET(
   req: Request,
   { params }: { params: { id: string } }
@@ -38,6 +42,11 @@ export async function GET(
     const partner = await prisma.user.findUnique({
       where: { id: parseInt(params.id) },
     });
+
+    if (!partner) {
+      return NextResponse.json({ error: "Parceiro não encontrado" }, { status: 404 });
+    }
+
     return NextResponse.json(partner);
   } catch (error) {
     return NextResponse.json({ error: "Erro ao buscar parceiro" }, { status: 500 });

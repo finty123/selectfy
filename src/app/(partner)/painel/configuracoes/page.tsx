@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import { User, Lock, Bell, creditCard, Save } from "lucide-react";
-
+// O correto é CreditCard
+import { User, Lock, Bell, CreditCard, Save } from "lucide-react";
 export default function ConfiguracoesPage() {
   return (
     <motion.div 
@@ -67,7 +67,7 @@ export default function ConfiguracoesPage() {
         <div className="space-y-6">
           <div className="bg-[#141414] border border-white/5 rounded-2xl overflow-hidden">
             <div className="p-6 border-b border-white/5 bg-white/[0.02] flex items-center gap-3">
-              <creditCard size={16} className="text-[#FF5C1A]" />
+              <CreditCard size={16} className="text-[#FF5C1A]" />
               <h3 className="text-[10px] font-black uppercase tracking-widest">Recebimento (PIX)</h3>
             </div>
             <div className="p-6 space-y-6">

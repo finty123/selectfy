@@ -1,15 +1,15 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client'
 
-// Impede que o Next.js abra múltiplas conexões com o banco em ambiente de dev
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const prismaClientSingleton = () => {
+  return new PrismaClient()
+}
 
-export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({
-    log: ["query"], // Útil para ver no console as queries executadas
-  });
+declare global {
+  var prisma: undefined | ReturnType<typeof prismaClientSingleton>
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+const prisma = globalThis.prisma ?? prismaClientSingleton()
 
-// ADICIONE ESTA LINHA PARA CORRIGIR O ERRO NO DASHBOARD:
-export default prisma;
+export default prisma
+
+if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma

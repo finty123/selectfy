@@ -1,28 +1,104 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  PARTNER
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  role          String    @default("PARTNER") // ADMIN ou PARTNER
-  status        String    @default("PENDING") // PENDING ou ACTIVE
-  sales         Sale[]
-  createdAt     DateTime  @default(now())
+  id                   Int                 @id @default(autoincrement())
+  name                 String
+  email                String              @unique
+  password             String
+  role                 Role                @default(PARTNER)
+  status               Status              @default(PENDING)
+  socialNetwork        String?
+  niche                String?
+  commissionPercentage Float               @default(50.0)
+  balance              Float               @default(0.0)
+  
+  // Novos campos para Financeiro Funcional
+  pixKeyType           String?             // CPF, EMAIL, TELEFONE, ALEATORIA
+  pixKey               String?             // A chave em si
+  
+  createdAt            DateTime            @default(now())
+  assignments          ProductAssignment[]
+  sales                Sale[]
+  withdrawals          Withdrawal[]
+}
+
+model Product {
+  id          Int                 @id @default(autoincrement())
+  name        String
+  description String?
+  platform    String // kirvano, kiwify, etc
+  niche       String? // Segmentação por nicho
+  baseUrl     String
+  createdById Int
+  createdAt   DateTime            @default(now())
+  assignments ProductAssignment[]
+  sales       Sale[]
+}
+
+model ProductAssignment {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  productId Int
+  user      User    @relation(fields: [userId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
 }
 
 model Sale {
-  id          String   @id @default(cuid())
-  amount      Float
-  commission  Float
-  status      String   @default("APPROVED")
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
+  id               Int      @id @default(autoincrement())
+  externalId       String   @unique
+  userId           Int
+  productId        Int
+  grossAmount      Float
+  netAmount        Float
+  commissionAmount Float
+  platform         String
+  status           String   @default("pending") // pending, paid, refused, refunded
+  createdAt        DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model WebhookLog {
+  id        Int      @id @default(autoincrement())
+  platform  String
+  payload   Json
+  processed Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Withdrawal {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  amount    Float
+  status    Status   @default(PENDING)
+  
+  // Snapshot dos dados PIX no momento da solicitação (Segurança/Auditoria)
+  pixKeyType String
+  pixKey     String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
 }

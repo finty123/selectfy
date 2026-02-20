@@ -2,22 +2,45 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronRight, Lock, Mail, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation"; // Import para navegação
+import { ChevronRight, Lock, Mail, Loader2, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
-  const router = useRouter();
+  // Estados para o formulário
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // Função para simular o login e redirecionar
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(""); 
 
-    // Simula uma validação de 1.5 segundos e joga para o painel
-    setTimeout(() => {
-      router.push("/painel");
-    }, 1500);
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Falha na autenticação");
+      }
+
+      // IMPORTANTE: Para garantir que o Middleware reconheça o Cookie do Admin 
+      // e mude o layout da página, o window.location.href é mais seguro que o router.push
+      if (data.role === "ADMIN") {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/painel"; // Verifique se sua rota é /painel ou /partner
+      }
+      
+    } catch (err: any) {
+      setError(err.message);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -42,6 +65,17 @@ export default function LoginPage() {
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#FF5C1A]/40 to-transparent" />
           
           <form onSubmit={handleLogin} className="space-y-6">
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-center gap-3 text-red-500 text-[10px] font-bold uppercase tracking-tight"
+              >
+                <AlertCircle size={16} />
+                {error}
+              </motion.div>
+            )}
+
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 ml-1">ID de Acesso</label>
               <div className="relative group">
@@ -49,8 +83,10 @@ export default function LoginPage() {
                 <input 
                   required
                   type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu@email.com"
-                  className="w-full bg-white/[0.02] border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm outline-none focus:border-[#FF5C1A]/50 focus:bg-white/[0.04] transition-all placeholder:text-zinc-800"
+                  className="w-full bg-white/[0.02] border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm outline-none focus:border-[#FF5C1A]/50 focus:bg-white/[0.04] transition-all placeholder:text-zinc-800 text-white"
                 />
               </div>
             </div>
@@ -65,8 +101,10 @@ export default function LoginPage() {
                 <input 
                   required
                   type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full bg-white/[0.02] border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm outline-none focus:border-[#FF5C1A]/50 focus:bg-white/[0.04] transition-all placeholder:text-zinc-800"
+                  className="w-full bg-white/[0.02] border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm outline-none focus:border-[#FF5C1A]/50 focus:bg-white/[0.04] transition-all placeholder:text-zinc-800 text-white"
                 />
               </div>
             </div>
@@ -89,7 +127,7 @@ export default function LoginPage() {
 
         <div className="mt-10 text-center">
           <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">
-            Ainda não é parceiro? <a href="/cadastro" className="text-white hover:text-[#FF5C1A] transition-colors ml-2 border-b border-white/10 pb-0.5">Solicitar Acesso</a>
+            Ainda não é parceiro? <a href="/register" className="text-white hover:text-[#FF5C1A] transition-colors ml-2 border-b border-white/10 pb-0.5">Solicitar Acesso</a>
           </p>
         </div>
       </motion.div>

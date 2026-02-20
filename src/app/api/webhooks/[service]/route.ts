@@ -1,3 +1,8 @@
+// O nome aqui dentro do params DEVE ser igual ao nome da pasta [service]
+export async function POST(req: Request, { params }: { params: { service: string } }) {
+  const service = params.service; 
+  // ... resto do código
+}
 import { NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';

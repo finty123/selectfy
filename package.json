@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "next-auth": "^4.24.7",
     "@prisma/adapter-pg": "^5.14.0",
     "@prisma/client": "^5.14.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
@@ -27,6 +28,7 @@
     "recharts": "^2.12.7"
   },
   "devDependencies": {
+    "@types/next-auth": "^4.10.2",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.6",

@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link2, ShieldCheck, Copy, Zap, CheckCircle2 } from "lucide-react";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-
+// Se o erro persistir com o de cima, use este caminho exato:
+// import { createClientComponentClient } from '@supabase/auth-helpers-nextjs/dist/index';
 export default function IntegrationsPage() {
   const supabase = createClientComponentClient();
   const [integrations, setIntegrations] = useState<any[]>([]);

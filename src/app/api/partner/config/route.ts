@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 // Importe aqui seu helper de pegar o ID do usuário logado (ex: authOptions)

@@ -1,13 +1,10 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Isso desativa a checagem rigorosa de tipos no build se necessário, 
-  // mas o foco aqui é ignorar erros de coleta de dados estáticos.
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // Isso impede que erros de 'collecting page data' parem o build total
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
+  // Adicione esta linha:
+  experimental: {
+    workerThreads: false,
+    cpus: 1
+  }
 };
-
-export default nextConfig;

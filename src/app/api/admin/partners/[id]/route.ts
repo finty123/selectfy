@@ -1,48 +1,62 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// ESTAS LINHAS PRECISAM SER AS PRIMEIRAS
+// FORÇA O NEXT.JS A NÃO RODAR ISSO NO BUILD
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> } // Usando Promise para garantir dinamismo
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
-    const partnerId = parseInt(id);
+    const id = parseInt(params.id);
 
-    if (isNaN(partnerId)) {
-      return NextResponse.json({ error: "ID Inválido" }, { status: 400 });
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "ID inválido" }, { status: 400 });
     }
 
     const partner = await prisma.user.findUnique({
-      where: { id: partnerId },
+      where: { id: id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        // Adicione aqui apenas os campos que você realmente precisa exibir
+      }
     });
 
-    return NextResponse.json(partner || { error: "Não encontrado" }, { status: partner ? 200 : 404 });
+    if (!partner) {
+      return NextResponse.json({ error: "Parceiro não encontrado" }, { status: 404 });
+    }
+
+    return NextResponse.json(partner);
   } catch (error) {
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
+    return NextResponse.json({ error: "Erro interno no servidor" }, { status: 500 });
   }
 }
 
-// Método PATCH para garantir que o Next veja múltiplos métodos e não tente estatizar
 export async function PATCH(
-  request: Request, 
-  { params }: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
-    const { status } = await request.json();
+    const id = parseInt(params.id);
+    const body = await request.json();
 
-    const updated = await prisma.user.update({
-      where: { id: parseInt(id) },
-      data: { status }
+    const updatedPartner = await prisma.user.update({
+      where: { id: id },
+      data: {
+        status: body.status,
+        // Adicione outros campos que o admin pode editar
+      },
     });
 
-    return NextResponse.json(updated);
+    return NextResponse.json(updatedPartner);
   } catch (error) {
-    return NextResponse.json({ error: "Erro ao atualizar" }, { status: 500 });
+    return NextResponse.json({ error: "Erro ao atualizar parceiro" }, { status: 500 });
   }
 }

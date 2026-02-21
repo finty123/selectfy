@@ -1,10 +1,16 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Isso impede que erros de 'collecting page data' parem o build total
-  typescript: { ignoreBuildErrors: true },
-  eslint: { ignoreDuringBuilds: true },
-  // Adicione esta linha:
+  typescript: {
+    ignoreBuildErrors: true, // Ignora erros de tipo que travam o build
+  },
+  eslint: {
+    ignoreDuringBuilds: true, // Ignora avisos de lint
+  },
+  // FORÇA O NEXT A NÃO TENTAR RENDERIZAR NADA ESTÁTICO QUE USE PRISMA NO BUILD
   experimental: {
     workerThreads: false,
     cpus: 1
   }
 };
+
+export default nextConfig;

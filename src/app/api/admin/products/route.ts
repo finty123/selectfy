@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma"; 
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +31,7 @@ export async function POST(req: Request) {
     });
     return NextResponse.json(product);
   } catch (error) {
+    console.error("Erro POST Product:", error);
     return NextResponse.json({ error: "Erro ao criar produto" }, { status: 500 });
   }
 }
